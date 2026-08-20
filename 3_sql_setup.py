@@ -1,45 +1,32 @@
-"""
-STEP 3: SQL - Data-va database-la store panni, query pannurom
-----------------------------------------------------------------
-Namma customers.csv data-va oru SQLite database-la store pannurom.
-SQLite = oru simple, file-based database - namma computer-lave 
-irukum, separate server install panna vendam.
 
-Apparam SQL queries vachu, data-va "ketkurom" (query pannurom).
-Support role interview-la SQL romba kekkuvanga, so idhu practice ku useful.
-"""
 
 import pandas as pd
 import sqlite3
 
-# Step 1: CSV data-va load pannurom
+# Load the customer dataset
 df = pd.read_csv("customers.csv")
 
-# Step 2: Database-oda "connection" create pannurom
-# "churn.db" nu oru file create aagum - idhu than namma database
+# Connect to the SQLite database
 conn = sqlite3.connect("churn.db")
 
-# Step 3: DataFrame-a database table aa maathurom
-# table name: "customers"
-# if_exists="replace" - already table irundha, replace pannidum
+# Store the DataFrame as a customers table
 df.to_sql("customers", conn, if_exists="replace", index=False)
 print("Data loaded into SQLite database (churn.db)")
 
-# Step 4: Ippo SQL queries run pannalam!
 
-# Query 1: Total customers evalo irukanga
+# Query the total number of customers
 query1 = "SELECT COUNT(*) as total FROM customers"
 result1 = pd.read_sql(query1, conn)
 print("\n--- Total Customers ---")
 print(result1)
 
-# Query 2: Evalo peru churn pannanga
+# Query the number of churned customers
 query2 = "SELECT COUNT(*) as churned FROM customers WHERE churn = 1"
 result2 = pd.read_sql(query2, conn)
 print("\n--- Churned Customers ---")
 print(result2)
 
-# Query 3: High-risk customers - evalo support calls pannanga, evalo bill
+# Find the five customers with the most support calls
 query3 = """
 SELECT customer_id, age, support_calls, monthly_charges, churn
 FROM customers
@@ -50,7 +37,7 @@ result3 = pd.read_sql(query3, conn)
 print("\n--- Top 5 customers with most support calls ---")
 print(result3)
 
-# Query 4: Average monthly charges - churned vs not churned customers
+# Compare average monthly charges by churn status
 query4 = """
 SELECT churn, AVG(monthly_charges) as avg_charges, COUNT(*) as count
 FROM customers
@@ -60,6 +47,6 @@ result4 = pd.read_sql(query4, conn)
 print("\n--- Average charges: churned vs not churned ---")
 print(result4)
 
-# Connection close pannurom (nalla practice, memory leak avoid panna)
+# Close the database connection
 conn.close()
 print("\nDone! Database saved as churn.db")
